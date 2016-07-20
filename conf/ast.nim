@@ -1,4 +1,4 @@
-import strutils, sequtils
+import strutils, sequtils, tables
 import commonnim
 
 type NodeType* = enum
@@ -128,15 +128,21 @@ proc stringValue*(n: Value): string =
   if n == nil: # enables common workflow with singleValue(required=false)
     return nil
   if n.typ != vtString:
-    raise newConfError(n, "expected string found $1" % $n.typ)
+    raise newConfError(n, "expected string, found $1" % $n.typ)
   let originalValue = n.originalValue
   if originalValue[0] in {'"', '\''}:
     # TODO: better parsing
-    return originalValue[1..^1]
+    return originalValue[1..^2]
   return originalValue
 
 proc stringValue*(n: Arg): string =
   return n.value.stringValue
+
+proc intValue*(n: Value | Arg): int =
+  try:
+    return parseInt(n.stringValue)
+  except ValueError:
+    raise newConfError(n, "expected number, found $1" % $n.stringValue)
 
 proc indent(t: string): string =
   t.replace("\L", "\L  ")

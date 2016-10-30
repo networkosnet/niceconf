@@ -55,10 +55,10 @@ proc peekUntilNode(state: var ParserState): tuple[junkBefore: seq[Node], node: N
   return consumeNode(state, allowEof=true)
 
 proc parseArray(state: var ParserState): Value =
-  assert false, "not implemented"
+  raise state.newConfError(ParseError, "not implemented")
 
 proc parseDict(state: var ParserState): Value =
-  assert false, "not implemented"
+  raise state.newConfError(ParseError, "not implemented")
 
 proc parseValue(state: var ParserState): Value =
   let (junkBefore, node) = state.consumeNode({ntString, ntBracketed})
@@ -70,9 +70,9 @@ proc parseValue(state: var ParserState): Value =
       # TODO: handle () by appending them to junkBefore and junkAfter
       raise state.newConfError(ParseError, "expected value, found '('")
     of "{":
-      result = newState.parseArray()
-    of "[":
       result = newState.parseDict()
+    of "[":
+      result = newState.parseArray()
     else: assert false
 
     result.junkBefore = junkBefore & result.junkBefore
